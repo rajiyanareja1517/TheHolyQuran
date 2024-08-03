@@ -1,10 +1,9 @@
-import 'dart:convert';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../providers/language_provider.dart';
+import '../../utils/constants.dart';
 import '../../widgets/app_name.dart';
 
 class HomePage extends StatefulWidget {
@@ -14,21 +13,21 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
+String selectedRadio = "English";
+
 class _HomePageState extends State<HomePage> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  Future<void> _setLanguageCode(String code) async {
+    final SharedPreferences prefs = await _prefs;
+    prefs.setString('code',code)!;
+
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xff687d5d),
-        actions: [
-          IconButton(
-              onPressed: () {},
-              icon: Icon(
-                Icons.settings,
-                color: Colors.white,
-                size: 32,
-              ))
-        ],
+
       ),
       backgroundColor: Color(0xff687d5d),
       body: Container(
@@ -90,7 +89,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        //Navigator.pushNamed(context, AppRoutes.juz);
+                        Navigator.pushNamed(context, "bookmark");
                       },
                       child: Container(
                         margin: EdgeInsets.only(left: 20, right: 20),
@@ -98,15 +97,15 @@ class _HomePageState extends State<HomePage> {
                         padding: EdgeInsets.only(top: 10, bottom: 10),
                         width: double.infinity,
                         decoration: BoxDecoration(
+                            color: Colors.red.shade100,
                             boxShadow: [
                               BoxShadow(
                                   color: Colors.black26, offset: Offset(2, 4.0))
                             ],
-                            color: Colors.red.shade100,
                             borderRadius:
-                                BorderRadius.all(Radius.circular(10))),
+                            BorderRadius.all(Radius.circular(10))),
                         child: Text(
-                          "Juzz Index",
+                          "Bookmarks",
                           style: TextStyle(fontSize: 20),
                         ),
                       ),
@@ -116,7 +115,47 @@ class _HomePageState extends State<HomePage> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        //Navigator.pushNamed(context, AppRoutes.bookmarks);
+                        showModalBottomSheet(
+                          context: context,
+                          builder: (context) {
+                            return SizedBox.expand(
+                              child: Column(
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.all(15),
+                                    child: Text(
+                                      "Select Language",
+                                      style: TextStyle(fontSize: 25),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: SingleChildScrollView(
+                                      child: Column(
+                                        children: [
+                                          ...Constants.language
+                                              .map((e) => RadioListTile(
+                                            activeColor: Color(0xff687d5d),
+                                            value: e.name,
+                                            title: Text(
+                                              e.name,
+                                              style: TextStyle(fontSize: 18),
+                                            ),
+                                            groupValue: selectedRadio,
+                                            onChanged: (value) {
+                                              handleRadioValueChange(value!, context);
+                                              _setLanguageCode(e.code);
+                                              Provider.of<LanguageProvide>(context,listen: false).setLanguageCode();
+                                            },
+                                          ))
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
                       },
                       child: Container(
                         margin: EdgeInsets.only(left: 20, right: 20),
@@ -124,15 +163,15 @@ class _HomePageState extends State<HomePage> {
                         padding: EdgeInsets.only(top: 10, bottom: 10),
                         width: double.infinity,
                         decoration: BoxDecoration(
-                            color: Colors.red.shade100,
                             boxShadow: [
                               BoxShadow(
                                   color: Colors.black26, offset: Offset(2, 4.0))
                             ],
+                            color: Colors.red.shade100,
                             borderRadius:
-                                BorderRadius.all(Radius.circular(10))),
+                            BorderRadius.all(Radius.circular(10))),
                         child: Text(
-                          "Bookmarks",
+                          "Language",
                           style: TextStyle(fontSize: 20),
                         ),
                       ),
@@ -166,5 +205,10 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  void handleRadioValueChange(String value, BuildContext context) {
+    selectedRadio = value;
+    Navigator.of(context).pop();
   }
 }

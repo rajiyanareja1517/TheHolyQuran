@@ -4,7 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
 
+import '../../providers/language_provider.dart';
 import '../../utils/constants.dart';
 
 class SurahIndex extends StatefulWidget {
@@ -19,8 +21,8 @@ class _SurahIndexState extends State<SurahIndex> {
 
   Future<void> loadJsonData() async {
     final String response =
-        await rootBundle.loadString('assets/json/data/chapters/en.json');
-    final data = await json.decode(response);
+        await rootBundle.loadString('assets/json/data/chapters/${Provider.of<LanguageProvide>(context,listen: false).code}.json');
+    final List data = await json.decode(response);
     setState(() {
       surahs = data;
     });
@@ -68,7 +70,7 @@ class _SurahIndexState extends State<SurahIndex> {
                     return GestureDetector(
                       onTap: () {
                         Navigator.pushNamed(context, "surah_details");
-                        currentSurahId=surah['id'];
+                        Constants.currentSurahId=surah['id'];
 
                       },
                       child: Row(

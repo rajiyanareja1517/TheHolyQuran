@@ -7,7 +7,6 @@ class OnBoardingProvider extends ChangeNotifier {
 
   set index(int index) {
     _currentIndex = index;
-
     notifyListeners();
   }
 }
